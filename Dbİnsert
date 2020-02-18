@@ -1,0 +1,33 @@
+import pyodbc
+from bs4 import BeautifulSoup
+import requests
+import pprint
+conn = pyodbc.connect('Driver={SQL Server};'
+                      'Server=DESKTOP-89D5BL2;'
+                      'Database=python;'
+                      'Trusted_Connection=yes;')
+
+url = "https://www.anneysen.com/hamilelik/makale/gunluk-yasam-ogluna-hangi-ismi-verecegine-karar-veremeyen-anne-adaylarina-erkek-bebek-isimleri-onerileri_10108"
+page = requests.get(url)
+
+soup = BeautifulSoup(page.content, 'html.parser')
+
+table_body=soup.find('tbody')
+rows = table_body.find_all('tr')
+'''cursor = conn.cursor()
+cursor.execute("TRUNCATE TABLE[dbo].[Table_1]")
+cursor.commit()'''
+for row in rows:
+    cols=row.find_all('td')
+    cols=[x.text.strip() for x in cols]
+    for i in cols:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO [dbo].[Table_1]([erkek_isimleri])VALUES('"+i+"')")
+        cursor.commit()
+
+
+'''Verileri Görmek İçin'''
+'''cursor = conn.cursor()
+cursor.execute("select top(1)* from dbo.Table_1  where yapılmadurumu != 1 order by yapılmadurumu desc")
+retValue = cursor.fetchall()
+print(retValue)'''
